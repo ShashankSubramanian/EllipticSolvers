@@ -11,7 +11,7 @@ in a realistic brain geometery.
 Download the brain geometry files from the drive link below:
 https://drive.google.com/drive/folders/1mqcbdDIb9UCS0gRT7s0W_FzCvjr5VtGK?usp=sharing
 
-[2 files: BrainGeometry_2D.mat is for 2D data
+[2 files: BrainGeometry_2D.mat is for 2D data;
           BrainGeometry_3D.mat is for 3D data]
 
 
