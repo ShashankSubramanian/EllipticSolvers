@@ -1,6 +1,6 @@
 % This app script solves the equation \grad k \grad c = f
 % with variable coefficient k, preconditioned by constant coefficient
-% operators. A generic rhs is set up for this.
+% operators. A generic rhs f is set up for this.
 
 clear; clc;
 
@@ -73,7 +73,7 @@ end
 % according the the brain geometry
 function n_misc = setup(dim)
     % Read the brain geometry
-    % Geo: white matter, gray matter, csf, initial tumor concentration
+    % Geo: white matter, gray matter, csf, some tumor concentration
     if dim == 2
         brain = load('BrainGeometry_2D.mat');
     else

@@ -2,12 +2,17 @@
 % constant coefficient spectral operators. The variable coefficients are
 % read and a generic forcing function is applied for this test-case.
 
+% -eta(u) + div(mu(grad(u) + grad(u)^T)) + grad(lam(div(u))) = f
+% rhs is some forcing function; u is the displacement vector field
+% mu, eta and lam are spatially variable coefficients
+
 clear; clc;
 
 dim = 2;          % dimension; 2:2D or 3:3D
 n_misc = setup(dim); % sets up the variable coefficients
                      % n_misc.mu and n_misc.la are the spatially variable 
-                     % Lam`e coefficients
+                     % Lam`e coefficients; n_misc.rho_screen is the
+                     % spatially variable screening coefficient
 
 n = n_misc.n;                         
 rhs = n_misc.c0;    
@@ -20,6 +25,7 @@ else
     rhs = [fx(:); fy(:)];
 end
 
+% solve
 [y, flag, relres, iter] = gmres(@(x)operator(x, n_misc), rhs(:), [],  1E-3, 100, @(x)applyConstCoeffInv(x, n_misc));
 fprintf ('GMRES: relres: %e, iter: %d\n', relres, iter(2));
 
@@ -90,6 +96,8 @@ function op = operator(x, n_misc)
     % grad (lam .* div(u))
     [g_l_x, g_l_y, g_l_z] = computeGradient(lam .* div_u, n_misc);
     
+    
+    % div(mu .* (grad(u) + grad(u)^T))
     d_m_u = computeDiv(mu .* (  dudx +   dudx), ...
                 mu .* (  dudy +   dvdx), ...
                 mu .* (  dudz +   dwdx), ...
@@ -107,6 +115,7 @@ function op = operator(x, n_misc)
                     n_misc);
     end
     
+    % screening term: -r .* u
     op_x = g_l_x + d_m_u - r_s .* u;
     op_y = g_l_y + d_m_v - r_s .* v;
     
@@ -119,7 +128,7 @@ function op = operator(x, n_misc)
  
 end
 
-% applies the constant coefficient inverse using FFT and sherman morrison
+% applies the constant coefficient inverse using FFTs and sherman morrison
 function op = applyConstCoeffInv(x, n_misc)
     n = n_misc.n;
     mu = mean(n_misc.mu(:));
@@ -238,7 +247,7 @@ end
 % according the the brain geometry
 function n_misc = setup(dim)
     % Read the brain geometry
-    % Geo: white matter, gray matter, csf, initial tumor concentration
+    % Geo: white matter, gray matter, csf, some tumor concentration
     if dim == 2
         brain = load('BrainGeometry_2D.mat');
     else
